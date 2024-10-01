@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node src/app.js",
     "dev": "nodemon -e js,html,css,json ./src/app.js",
     "pretest": "eslint ./src --fix",
     "test": "echo \"Tests Complete!\""
