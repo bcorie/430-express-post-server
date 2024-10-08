@@ -15,6 +15,7 @@ const filePath404Page = path.resolve(__dirname, '../client/404.html');
 
 // Routes: hierarchy matters
 app.use(express.static('client'));
+app.use(express.json());
 app.use('/', indexRouter);
 app.use('/quotes', quotesRouter);
 app.use('/complain', complainRouter);

@@ -26,8 +26,21 @@ router.get('/recent', (req, res) => {
 
 router.get('/:id', (req, res) => { // Note the colon, which matches anything after '/' and assigns it to the `id` variable
   const { id } = req.params; // NEW!
-  // console.log(`id=${id}`);
 
+  // class solution
+  if (!id) {
+    res.json(data);
+    return;
+  }
+
+  const quote = db.getQuoteById(id);
+  if (quote) {
+    res.json(quote);
+  } else {
+    res.json({});
+  }
+
+  /* // my solution:
   // if id parameter doesn't exist, return all quotes
   if (id === undefined) {
     res.send(data);
@@ -41,6 +54,7 @@ router.get('/:id', (req, res) => { // Note the colon, which matches anything aft
 
   // if no matching id, id is empty
   res.send({});
+  */
 });
 
 module.exports = router;

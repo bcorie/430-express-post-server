@@ -13,21 +13,7 @@ const randomQuote = () => quotes[Math.floor(Math.random() * quotes.length)];
 
 const recentQuote = () => quotes[quotes.length - 1];
 
-const getQuoteById = (id) => {
-  // if id parameter doesn't exist, return all quotes
-  if (id === undefined) {
-    return quotes;
-  }
-
-  for (let i = 0; i < quotes.length; i++) {
-    if (id === quotes[i].id) {
-      return quotes[i];
-    }
-  }
-
-  // if no matching id, id is empty
-  return {};
-};
+const getQuoteById = (id) => quotes.find((q) => q.id === id);
 
 module.exports = {
   getAllQuotes, randomQuote, recentQuote, getQuoteById,
