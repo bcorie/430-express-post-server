@@ -4,23 +4,58 @@ const router = express.Router();
 
 const generateNewId = () => crypto.randomUUID();
 
+// const hoots = [{
+//   id: generateNewId(),
+//   content: "Let's Rock!",
+//   createdAt: new Date(),
+// }];
+
 const hoots = [{
-  id: generateNewId(),
+  id: '11111111-2222-3333-4444-555555555555',
   content: "Let's Rock!",
   createdAt: new Date(),
-}];
+},
+{
+  id: '66666666-7777-8888-9999-000000000000',
+  content: "Bird's aren't real!",
+  createdAt: new Date(),
+},
+];
 
-router.get('/helloJSON', (req, res) => {
-  res.json({ message: 'Hello world!' });
-});
+const hootToXML = (hoot) => {
+  let xmlStr = `<hoot id="${hoot.id}" createdAt="${hoot.createdAt}"`;
+  xmlStr += hoot.content;
+  xmlStr += `</hoot>`;
+  return xmlStr;
+};
 
-router.get('/timeJSON', (req, res) => {
-  const d = new Date();
-  res.json({ message: d });
+// secondary to GET, so call before GET
+router.head('/hoots', (req, res) => {
+  // console.log('HEAD called');
+  const { length } = JSON.stringify(hoots);
+  res.set({
+    'Content-Type': 'application/json',
+    'Content-Length': length,
+    'X-Coder': 'CB',
+  });
+  res.end();
 });
 
 router.get('/hoots', (req, res) => {
-  res.json(hoots);
+  // XML
+  // if (req.accepts('application/xml')) {
+  // or
+  if (req.get('Accept') === 'application/xml') {
+    // res.header('Content-Type', 'application/xml');
+    // or
+    res.type('application/xml');
+    const str = `<hoots>
+    ${hoots.map((h) => hootToXML(h)).join('')}
+    </hoots>`;
+    res.send(str);
+  } else {
+    res.json(hoots);
+  }
 });
 
 router.post('/addHoot', (req, res) => {
@@ -97,6 +132,15 @@ router.get('/hoots/:id([0-9,a-z,A-Z,-]{36})', (req, res) => {
     // console.log(`Get successful: ${hoot.id}`);
     res.json(hoot);
   }
+});
+
+router.get('/helloJSON', (req, res) => {
+  res.json({ message: 'Hello world!' });
+});
+
+router.get('/timeJSON', (req, res) => {
+  const d = new Date();
+  res.json({ message: d });
 });
 
 module.exports = router;

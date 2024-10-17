@@ -12,6 +12,13 @@
       border:1px solid gray;
       width: 620px;
     }
+    .table { display: table; border:1px solid black; } 
+    .table .row { display: table-row; }
+    .table .row>* {
+      display: table-cell;
+      border: 1px solid red; padding:10px; background-color: beige;
+    }
+    /* https://wisdmlabs.com/blog/responsive-tables-using-css-div-tag/ */
   </style>
 </head>
 <body>
@@ -62,6 +69,63 @@
 </form>
 
 <div id="output-view-hoot">???</div>
+
+<hr>
+
+<h2>VII. View one quote (Old School GET, no JS)!</h2>
+<form action="/quotes" method="GET">
+  <label>Id: <input type="text" name="id" size="36"></label><br><br>
+  <input type="hidden" name="loggedin" value="true" />
+  <button type="submit">Send "No JS" Request to <kbd>/quotes?id=</kbd></button>
+</form>
+
+<p><i>This will re-direct the browser to the <kbd>/quotes?id=</kbd> endpoint, and display whatever the server sent back.</i></p>
+<p>You can use <kbd>4c6217c3-c6e5-460b-8f8f-0df64ad6fef2</kbd> to view the Mark Twain quote.</p>
+
+<hr>
+
+<h2>VIII. Add a Hoot (Old School POST, no JS)!</h2>
+<form action="/api/addHoot" method="POST">
+  <label>Content: <input type="text" name="content" size="80"></label><br><br>
+  <button type="submit">Send "No JS" Request to <kbd>/api/addHoot</kbd></button>
+</form>
+
+<p>This will call the existing <kbd>POST</kbd> <kbd>/api/addHoot</kbd> endpoint.</p>
+<p>Unlike the <kbd>GET</kbd> above where the data (e.g. <kbd>/quotes?id=12345</kbd>) is passed to the server via the <i>query string</i>, here the data will be passed to the server-side script in a <i>separate file.</i></p>
+
+<hr>
+
+<h2>IX. Delete or Edit all the hoots (IMPROVED)!</h2>
+<form id="form-delete-edit-hoot-improved" class="table">
+  <!-- row #0 -->
+  <div class="row">
+    <span class="row-id">id: 11111111-2222-3333-4444-555555555555</span>
+    <input type="hidden" name="hoot-id-0" value="11111111-2222-3333-4444-555555555555">
+    <label><b>Content:</b> <input type="text" name="content-0" size="30" value="Let's Rock!"></label>
+    <button type="submit" name="UPDATE-0">UPDATE</button>
+    <button type="submit" name="DELETE-0">DELETE</button> 
+  </div>
+
+   <!-- row #1 -->
+   <div class="row">
+    <span class="row-id">id: 66666666-7777-8888-9999-000000000000</span>
+    <input type="hidden" name="hoot-id-1" value="66666666-7777-8888-9999-000000000000">
+    <label><b>Content:</b> <input type="text" name="content-1" size="30" value="Bird's aren't real!"></label>
+    <button type="submit" name="UPDATE-1">UPDATE</button>
+    <button type="submit" name="DELETE-1">DELETE</button> 
+  </div>
+
+  <!-- etc for row #2 and beyond -->
+  <!-- you will need to generate this entire form and all its rows dynamically, with JS! -->
+</form>
+<h3>Results:</h3>
+<div id="output-edit-hoot-improved">???</div>
+
+<h2>X. Superform!</h2>
+<form id="form-super" class="table"></form>
+
+<h3>Results:</h3>
+<div id="output-super">???</div>
 
 <hr>
 
@@ -202,7 +266,50 @@ const hootCB = (selector) => {
   };
 };
 
+// Improved DELETE/EDIT hoot form
+const formDeleteEditHootImproved = document.querySelector('#form-delete-edit-hoot-improved');
 
+formDeleteEditHootImproved.onsubmit = (evt) => {
+  evt.preventDefault();
+  const form = evt.target;
+  let buttonClicked = evt.submitter; // button that was clicked
+  let [buttonClickedName, row] = buttonClicked.name.split('-'); // get button name and row
+  const id = form[`hoot-id-${row}`].value;
+  const content = form[`content-${row}`].value;
+  form[`content-${row}`].value = '';
+
+  const payload = {}; // empty for DELETE, need .content for PUT
+  if (buttonClickedName === 'DELETE') {
+    console.log(`DELETE with id=${id}`);
+    postJsonFetch(`${deleteHootURL}/${id}`, payload, addHootCallback('#output-edit-hoot-improved'), 'DELETE');
+  } else {
+    // EDIT
+    console.log(`PUT with id=${id}, content=${content}`);
+    console.log("You can implement edit/PUT capability! It's only TWO more lines of code!");
+  };
+};
+
+// Superform
+
+const superForm = document.querySelector('#form-super');
+superForm.onsubmit = deleteEditCB;
+
+// call populateSuperForm() when the page first loads, and whenever your server data changes (from DELETE, POST, PUT) 
+const populateSuperForm = () => {
+  superForm.innerHTML = '';
+
+  // callback function for when data shows up
+  const buildSuperFormCB = (json) => superForm.innerHTML = json.map(...
+  // build each row of the form
+  // ditto
+  ).join('');
+
+  
+  getJsonFetch(allHootsURL, buildSuperFormCB);
+};
+
+// populate initial state of form
+populateSuperForm();
 
 </script>
 </html>
